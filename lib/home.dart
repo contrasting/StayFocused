@@ -19,6 +19,8 @@ class _HomeState extends State<Home> {
   int? _startTimeMillis;
   Duration _session = Duration.zero;
   Duration _today = Duration.zero;
+  /// amount of focused time in previous sessions today
+  Duration _todayPrev = Duration.zero;
 
   @override
   void initState() {
@@ -30,6 +32,16 @@ class _HomeState extends State<Home> {
       _isFocusing = true;
       _startTimeMillis = preferences.getInt(SESSION_START)!;
     }
+
+    final date = dateString(DateTime.now());
+
+    if (preferences.containsKey(date)) {
+      _todayPrev = Duration(milliseconds: preferences.getInt(date)!);
+      _today = _todayPrev;
+    }
+
+    // call to update immediately without delay
+    _updateUi(_uiUpdater);
   }
 
   @override
@@ -51,7 +63,7 @@ class _HomeState extends State<Home> {
               style: Theme.of(context).textTheme.headline4,
             ),
             Text(
-              'Today: 00:00',
+              'Today: ${formatDuration(_today)}',
               style: Theme.of(context).textTheme.headline4,
             ),
             const SizedBox(height: 64.0),
@@ -82,6 +94,7 @@ class _HomeState extends State<Home> {
     setState(() {
       int elapsedMillis = DateTime.now().millisecondsSinceEpoch - _startTimeMillis!;
       _session = Duration(milliseconds: elapsedMillis);
+      _today = _session + _todayPrev;
     });
   }
 
@@ -98,5 +111,8 @@ class _HomeState extends State<Home> {
 
     _startTimeMillis = null;
     preferences.remove(SESSION_START);
+    // update time focused today
+    preferences.setInt(dateString(DateTime.now()), _today.inMilliseconds);
+    _todayPrev = _today;
   }
 }
