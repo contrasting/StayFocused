@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stay_focused/colors.dart';
 
 import 'home.dart';
 
-void main() {
+late final SharedPreferences preferences;
+
+void main() async {
+  preferences = await SharedPreferences.getInstance();
   runApp(const StayFocused());
 }
 
