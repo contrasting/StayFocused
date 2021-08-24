@@ -122,6 +122,9 @@ class _HostsState extends State<Hosts> {
 
   void _save() {
     preferences.setString(BLACKLISTED, _controller.text);
-    startBlocking();
+    // save should only start blocking when is focusing
+    if (preferences.containsKey(SESSION_START)) {
+      startBlocking();
+    }
   }
 }

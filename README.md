@@ -10,7 +10,8 @@ A small program to help me stay focused
 
 It records the number of hours you focused for the day, and displays a history of this record.
 
-It can also blacklist certain internet hosts, note you will need to run it in administrator mode.
+It can also blacklist certain internet hosts while you are focused,
+note you will need to run it in administrator mode.
 
 ### How does it work
 

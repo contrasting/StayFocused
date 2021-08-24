@@ -17,8 +17,9 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   late final Timer _uiUpdater;
 
-  bool _isFocusing = false;
-  int? _startTimeMillis;
+  bool get _isFocusing => preferences.containsKey(SESSION_START);
+  int? get _startTimeMillis => preferences.getInt(SESSION_START);
+
   Duration _session = Duration.zero;
   Duration _today = Duration.zero;
   /// amount of focused time in previous sessions today
@@ -28,12 +29,6 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _uiUpdater = Timer.periodic(const Duration(seconds: 1), _updateUi);
-
-    // init start time to one saved in storage
-    if (preferences.containsKey(SESSION_START)) {
-      _isFocusing = true;
-      _startTimeMillis = preferences.getInt(SESSION_START)!;
-    }
 
     final date = dateString(DateTime.now());
 
@@ -75,14 +70,12 @@ class _HomeState extends State<Home> {
                 _isFocusing ? Icons.remove_red_eye : Icons.remove_red_eye_outlined,
               ),
               onPressed: () {
-                if (_isFocusing) {
-                  _stopFocusing();
-                } else {
-                  _startFocusing();
-                }
-
                 setState(() {
-                  _isFocusing = !_isFocusing;
+                  if (_isFocusing) {
+                    _stopFocusing();
+                  } else {
+                    _startFocusing();
+                  }
                 });
               },
             ),
@@ -105,15 +98,13 @@ class _HomeState extends State<Home> {
     // if already focused
     if (_isFocusing) return;
 
-    _startTimeMillis = DateTime.now().millisecondsSinceEpoch;
-    preferences.setInt(SESSION_START, _startTimeMillis!);
+    preferences.setInt(SESSION_START, DateTime.now().millisecondsSinceEpoch);
     startBlocking();
   }
 
   void _stopFocusing() {
     if (!_isFocusing) return;
 
-    _startTimeMillis = null;
     preferences.remove(SESSION_START);
     // update time focused today
     writeRow(dateString(DateTime.now()), _today.inMilliseconds);
