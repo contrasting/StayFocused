@@ -17,7 +17,10 @@ void startBlocking() async {
   final hostsFile = await _getHostsFile();
   final hostsList = ls.convert(await hostsFile.readAsString());
 
-  if (hostsList.contains(HOSTS_START)) throw 'hosts file already contains stay focused';
+  if (hostsList.contains(HOSTS_START)) {
+    // hosts file already exists. We should update it instead of appending
+    _removeExisting(hostsList);
+  }
 
   final whitelist = ls.convert(preferences.getString(WHITELISTED)!);
   final lookups = <Future<List<InternetAddress>>>[];
@@ -50,7 +53,25 @@ void startBlocking() async {
 void stopBlocking() async {
   final hostsFile = await _getHostsFile();
   final hostsList = LineSplitter().convert(await hostsFile.readAsString());
+  _removeExisting(hostsList);
+  hostsFile.writeAsString(hostsList.join('\n'));
+}
 
+Future<File> _getHostsFile() async {
+  final systemPath = await pathProvider.getPath(WindowsKnownFolder.System);
+  return File('$systemPath/drivers/etc/hosts');
+}
+
+List<String>? _nullRoutes;
+
+Future<List<String>> _getNullRoutes() async {
+  if (_nullRoutes != null) return _nullRoutes!;
+  final routes = await rootBundle.loadString('resources/null_route.txt');
+  _nullRoutes = LineSplitter().convert(routes);
+  return _nullRoutes!;
+}
+
+void _removeExisting(List<String> hostsList) {
   int? start, end;
   for (int i = 0; i < hostsList.length; i++) {
     if (hostsList[i] == HOSTS_START) {
@@ -63,22 +84,6 @@ void stopBlocking() async {
 
   if (start == null || end == null) return;
   hostsList.removeRange(start, end + 1); // NB + 1
-  hostsFile.writeAsString(hostsList.join('\n'));
-}
-
-Future<File> _getHostsFile() async {
-  // TODO change
-  final systemPath = await pathProvider.getPath(WindowsKnownFolder.Desktop);
-  return File('$systemPath/hosts.txt');
-}
-
-List<String>? _nullRoutes;
-
-Future<List<String>> _getNullRoutes() async {
-  if (_nullRoutes != null) return _nullRoutes!;
-  final routes = await rootBundle.loadString('resources/null_route.txt');
-  _nullRoutes = LineSplitter().convert(routes);
-  return _nullRoutes!;
 }
 
 class Hosts extends StatefulWidget {

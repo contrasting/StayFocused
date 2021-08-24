@@ -1,7 +1,7 @@
 const SESSION_START = 'sessionStart';
 const WHITELISTED = 'whitelisted';
-const HOSTS_START = '%%% STAY FOCUSED START %%%';
-const HOSTS_END = '%%% STAY FOCUSED END %%%';
+const HOSTS_START = '### STAY FOCUSED START ###';
+const HOSTS_END = '### STAY FOCUSED END ###';
 
 // https://stackoverflow.com/questions/54775097/formatting-a-duration-like-hhmmss
 String formatDuration(Duration d) => d.toString().split('.').first.padLeft(8, "0");
