@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stay_focused/colors.dart';
+import 'package:stay_focused/stats.dart';
 
+import 'data.dart';
 import 'home.dart';
 
 late final SharedPreferences preferences;
 
 void main() async {
   preferences = await SharedPreferences.getInstance();
+  await loadData();
   runApp(const StayFocused());
 }
 
@@ -38,6 +41,7 @@ class Navigation extends StatefulWidget {
 class _NavigationState extends State<Navigation> {
   final _children = <Widget>[
     const Home(),
+    const Stats(),
   ];
 
   int _index = 0;
@@ -53,8 +57,8 @@ class _NavigationState extends State<Navigation> {
               label: Text('Home'),
             ),
             NavigationRailDestination(
-              icon: Icon(Icons.update),
-              label: Text('???'),
+              icon: Icon(Icons.analytics),
+              label: Text('Stats'),
             ),
           ],
           selectedIndex: _index,

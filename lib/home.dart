@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:stay_focused/data.dart';
 import 'package:stay_focused/strings.dart';
 
 import 'main.dart';
@@ -35,8 +36,9 @@ class _HomeState extends State<Home> {
 
     final date = dateString(DateTime.now());
 
-    if (preferences.containsKey(date)) {
-      _todayPrev = Duration(milliseconds: preferences.getInt(date)!);
+    int? todayPrevMillis = getRow(date);
+    if (todayPrevMillis != null) {
+      _todayPrev = Duration(milliseconds: todayPrevMillis);
       _today = _todayPrev;
     }
 
@@ -112,7 +114,7 @@ class _HomeState extends State<Home> {
     _startTimeMillis = null;
     preferences.remove(SESSION_START);
     // update time focused today
-    preferences.setInt(dateString(DateTime.now()), _today.inMilliseconds);
+    writeRow(dateString(DateTime.now()), _today.inMilliseconds);
     _todayPrev = _today;
   }
 }
