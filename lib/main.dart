@@ -5,6 +5,7 @@ import 'package:stay_focused/stats.dart';
 
 import 'data.dart';
 import 'home.dart';
+import 'hosts.dart';
 
 late final SharedPreferences preferences;
 
@@ -42,6 +43,7 @@ class _NavigationState extends State<Navigation> {
   final _children = <Widget>[
     const Home(),
     const Stats(),
+    const Hosts(),
   ];
 
   int _index = 0;
@@ -59,6 +61,10 @@ class _NavigationState extends State<Navigation> {
             NavigationRailDestination(
               icon: Icon(Icons.analytics),
               label: Text('Stats'),
+            ),
+            NavigationRailDestination(
+              icon: Icon(Icons.change_history),
+              label: Text('Hosts'),
             ),
           ],
           selectedIndex: _index,
