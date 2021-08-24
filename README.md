@@ -1,16 +1,32 @@
-# stay_focused
+## Stay focused mate
 
-Stay focused mate
+![Screenshot](screenshot.png)
 
-## Getting Started
+### What this is
 
-This project is a starting point for a Flutter application.
+A small program to help me stay focused
 
-A few resources to get you started if this is your first Flutter project:
+### What can it do
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+It records the number of hours you focused for the day, and displays a history of this record.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+It can also blacklist certain internet hosts, note you will need to run it in administrator mode.
+
+### How does it work
+
+Ask me later
+
+### How do I use this
+
+You'll need to have the [desktop development workflow](https://flutter.dev/desktop) setup for flutter.
+
+Then, run
+
+```
+flutter build windows
+flutter pub run msix:create
+```
+
+and follow the instructions to install.
+
+NB I have ONLY tested this program for windows.
