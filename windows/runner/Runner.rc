@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "mate.stayfocused" "\0"
+            VALUE "CompanyName", "com.stayfocusedmate" "\0"
             VALUE "FileDescription", "Stay focused mate" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "stay_focused" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2021 mate.stayfocused. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2021 com.stayfocusedmate. All rights reserved." "\0"
             VALUE "OriginalFilename", "stay_focused.exe" "\0"
             VALUE "ProductName", "stay_focused" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
