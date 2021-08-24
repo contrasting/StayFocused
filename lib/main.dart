@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:stay_focused/colors.dart';
 import 'package:stay_focused/stats.dart';
 
@@ -7,9 +9,14 @@ import 'data.dart';
 import 'home.dart';
 import 'hosts.dart';
 
+// global vars
 late final SharedPreferences preferences;
+late final PathProviderWindows pathProvider;
 
 void main() async {
+  // NB this is windows specific
+  PathProviderWindows.registerWith();
+  pathProvider = PathProviderPlatform.instance as PathProviderWindows;
   preferences = await SharedPreferences.getInstance();
   await loadData();
   runApp(const StayFocused());

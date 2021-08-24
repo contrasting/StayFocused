@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:csv/csv.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:path_provider_windows/src/folders.dart';
 import 'package:stay_focused/strings.dart';
+
+import 'main.dart';
 
 late final File _file;
 late final List<List<dynamic>> _data;
@@ -11,8 +13,8 @@ List<FocusDay>? _parsed;
 
 // call this before using any other methods
 Future<void> loadData() async {
-  final documents = await getApplicationDocumentsDirectory();
-  _file = File('${documents.path}/focus_data.csv');
+  final documentsPath = await pathProvider.getPath(WindowsKnownFolder.Documents);
+  _file = File('${documentsPath}/focus_data.csv');
   try {
     _data = await _file.openRead().transform(utf8.decoder).transform(const CsvToListConverter()).toList();
   } on FileSystemException {
