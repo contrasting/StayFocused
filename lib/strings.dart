@@ -1,5 +1,7 @@
 const SESSION_START = 'sessionStart';
+@deprecated
 const WHITELISTED = 'whitelisted';
+const BLACKLISTED = 'blacklisted';
 const HOSTS_START = '### STAY FOCUSED START ###';
 const HOSTS_END = '### STAY FOCUSED END ###';
 

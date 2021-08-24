@@ -4,14 +4,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:stay_focused/strings.dart';
 import 'package:path_provider_windows/src/folders.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 import 'main.dart';
 
+// edit: doesn't work
 // https://superuser.com/questions/988547/allow-only-white-listed-sites-on-windows-10
 
 void startBlocking() async {
-  if (!preferences.containsKey(WHITELISTED)) return;
+  if (!preferences.containsKey(BLACKLISTED)) return;
 
   final ls = LineSplitter();
   final hostsFile = await _getHostsFile();
@@ -22,27 +22,15 @@ void startBlocking() async {
     _removeExisting(hostsList);
   }
 
-  final whitelist = ls.convert(preferences.getString(WHITELISTED)!);
-  final lookups = <Future<List<InternetAddress>>>[];
-
-  // perform DNS lookup
-  for (String host in whitelist) {
-    lookups.add(InternetAddress.lookup(host, type: InternetAddressType.IPv4));
-  }
-  final lookupsResult = await Future.wait(lookups);
+  final blacklist = ls.convert(preferences.getString(BLACKLISTED)!);
 
   // indicate start
   hostsList.add(HOSTS_START);
 
-  // save DNS queries
-  for (final addresses in lookupsResult) {
-    for (final address in addresses) {
-      hostsList.add('${address.address}  ${address.host}');
-    }
+  // add blacklist
+  for (final host in blacklist) {
+    hostsList.add('0.0.0.0  $host');
   }
-
-  // save null routes
-  hostsList.addAll(await _getNullRoutes());
 
   // indicate end
   hostsList.add(HOSTS_END);
@@ -60,15 +48,6 @@ void stopBlocking() async {
 Future<File> _getHostsFile() async {
   final systemPath = await pathProvider.getPath(WindowsKnownFolder.System);
   return File('$systemPath/drivers/etc/hosts');
-}
-
-List<String>? _nullRoutes;
-
-Future<List<String>> _getNullRoutes() async {
-  if (_nullRoutes != null) return _nullRoutes!;
-  final routes = await rootBundle.loadString('resources/null_route.txt');
-  _nullRoutes = LineSplitter().convert(routes);
-  return _nullRoutes!;
 }
 
 void _removeExisting(List<String> hostsList) {
@@ -99,9 +78,9 @@ class _HostsState extends State<Hosts> {
   @override
   void initState() {
     super.initState();
-    if (preferences.containsKey(WHITELISTED)) {
-      final whitelist = preferences.getString(WHITELISTED);
-      _controller.text = whitelist!;
+    if (preferences.containsKey(BLACKLISTED)) {
+      final blacklist = preferences.getString(BLACKLISTED);
+      _controller.text = blacklist!;
     }
   }
 
@@ -114,7 +93,7 @@ class _HostsState extends State<Hosts> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Hosts to whitelist:',
+              'Hosts to blacklist:',
               style: Theme.of(context).textTheme.headline5,
             ),
             SizedBox(height: 8.0),
@@ -142,7 +121,7 @@ class _HostsState extends State<Hosts> {
   }
 
   void _save() {
-    preferences.setString(WHITELISTED, _controller.text);
+    preferences.setString(BLACKLISTED, _controller.text);
     startBlocking();
   }
 }
