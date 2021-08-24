@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:stay_focused/data.dart';
+import 'package:stay_focused/hosts.dart';
 import 'package:stay_focused/strings.dart';
 
 import 'main.dart';
@@ -106,6 +107,7 @@ class _HomeState extends State<Home> {
 
     _startTimeMillis = DateTime.now().millisecondsSinceEpoch;
     preferences.setInt(SESSION_START, _startTimeMillis!);
+    startBlocking();
   }
 
   void _stopFocusing() {
@@ -116,5 +118,6 @@ class _HomeState extends State<Home> {
     // update time focused today
     writeRow(dateString(DateTime.now()), _today.inMilliseconds);
     _todayPrev = _today;
+    stopBlocking();
   }
 }
