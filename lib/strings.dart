@@ -14,3 +14,8 @@ DateTime stringToDate(String dateStr) {
   final parts = dateStr.split('-');
   return DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
 }
+
+String formatDurationNoSecs(Duration d) {
+  final str = d.toString().split('.').first;
+  return str.substring(0, str.length - 3);
+}

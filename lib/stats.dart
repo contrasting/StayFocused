@@ -6,6 +6,7 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'colors.dart';
 import 'data.dart';
+import 'strings.dart';
 
 class Stats extends StatelessWidget {
   const Stats({Key? key}) : super(key: key);
@@ -20,8 +21,8 @@ class Stats extends StatelessWidget {
             fit: FlexFit.tight,
             child: Column(
               children: [
-                Expanded(child: PastWeek()),
-                Expanded(child: PastMonth()),
+                Expanded(child: FocusChart(title: 'Last Week', observations: 7)),
+                Expanded(child: FocusChart(title: 'Last Month', observations: 30)),
               ],
             ),
           ),
@@ -35,17 +36,27 @@ class Stats extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    'Weekly average: ${_getAverage(7).toStringAsFixed(2)}',
+                    'Weekly total: ${formatDurationNoSecs(_getTotal(7))}',
                     style: Theme.of(context).textTheme.headline4,
                   ),
                   Text(
-                    'Monthly average: ${_getAverage(30).toStringAsFixed(2)}',
+                    'Monthly total: ${formatDurationNoSecs(_getTotal(30))}',
+                    style: Theme.of(context).textTheme.headline4,
+                  ),
+                  const SizedBox(height: 16.0),
+                  Text(
+                    'Weekly average: ${formatDurationNoSecs(_getAverage(7))}',
                     style: Theme.of(context).textTheme.headline4,
                   ),
                   Text(
-                    'All time average: ${_getAverage().toStringAsFixed(2)}',
+                    'Monthly average: ${formatDurationNoSecs(_getAverage(30))}',
                     style: Theme.of(context).textTheme.headline4,
                   ),
+                  Text(
+                    'All time average: ${formatDurationNoSecs(_getAverage())}',
+                    style: Theme.of(context).textTheme.headline4,
+                  ),
+                  Spacer(),
                   Calendar(),
                 ],
               ),
@@ -59,9 +70,10 @@ class Stats extends StatelessWidget {
 
 class ChartContainer extends StatelessWidget {
   final String title;
+  final String? subtitle;
   final Widget chart;
 
-  const ChartContainer({Key? key, required this.title, required this.chart})
+  const ChartContainer({Key? key, required this.title, required this.chart, this.subtitle})
       : super(key: key);
 
   @override
@@ -71,9 +83,20 @@ class ChartContainer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            title,
-            style: Theme.of(context).textTheme.headline5,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                title,
+                style: Theme.of(context).textTheme.headline5,
+              ),
+              if (subtitle != null)
+                Text(
+                  subtitle!,
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+            ],
           ),
           Expanded(child: chart),
         ],
@@ -99,41 +122,64 @@ List<Series<FocusDay, DateTime>> _buildSeries(int days) {
   ];
 }
 
-double _getAverage([int? days]) {
+Duration _getAverage([int? days]) {
   final allTime = getParsed();
-  if (allTime.isEmpty) return 0.0;
+  if (allTime.isEmpty) return Duration.zero;
   if (days == null) days = allTime.length;
   final truncated = allTime.getRange(max(0, allTime.length - days), allTime.length);
   final totalMillis = truncated
       .map<int>((day) => day.focusedTimeMillis)
       .reduce((value, element) => value + element);
-  final totalHours = Duration(milliseconds: totalMillis).inSeconds / 3600;
-  return totalHours / days;
+  final averageMillis = totalMillis / days;
+  return Duration(milliseconds: averageMillis.round());
 }
 
-class PastWeek extends StatelessWidget {
-  const PastWeek({Key? key}) : super(key: key);
+Duration _getTotal([int? days]) {
+  final allTime = getParsed();
+  if (allTime.isEmpty) return Duration.zero;
+  if (days == null) days = allTime.length;
+  final truncated = allTime.getRange(max(0, allTime.length - days), allTime.length);
+  final totalMillis = truncated
+      .map<int>((day) => day.focusedTimeMillis)
+      .reduce((value, element) => value + element);
+  return Duration(milliseconds: totalMillis);
+}
+
+class FocusChart extends StatefulWidget {
+  final String title;
+  final int observations;
+
+  const FocusChart({Key? key, required this.title, required this.observations}) : super(key: key);
+
+  @override
+  _FocusChartState createState() => _FocusChartState();
+}
+
+class _FocusChartState extends State<FocusChart> {
+  String? _subtitle;
 
   @override
   Widget build(BuildContext context) {
     return ChartContainer(
-      title: 'Last Week',
+      title: widget.title,
+      subtitle: _subtitle,
       chart: TimeSeriesChart(
-        _buildSeries(7),
-      ),
-    );
-  }
-}
-
-class PastMonth extends StatelessWidget {
-  const PastMonth({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ChartContainer(
-      title: 'Last Month',
-      chart: TimeSeriesChart(
-        _buildSeries(30),
+        _buildSeries(widget.observations),
+        // https://google.github.io/charts/flutter/example/behaviors/selection_callback_example
+        selectionModels: [
+          SelectionModelConfig(
+            type: SelectionModelType.info,
+            changedListener: (model) {
+              final selectedDatum = model.selectedDatum;
+              if (selectedDatum.isNotEmpty) {
+                FocusDay day = selectedDatum.first.datum;
+                setState(() {
+                  _subtitle = formatDurationNoSecs(Duration(milliseconds: day.focusedTimeMillis));
+                });
+              }
+            }
+          ),
+        ],
       ),
     );
   }

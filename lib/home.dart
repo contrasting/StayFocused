@@ -30,9 +30,7 @@ class _HomeState extends State<Home> {
     super.initState();
     _uiUpdater = Timer.periodic(const Duration(seconds: 1), _updateUi);
 
-    final date = dateString(DateTime.now());
-
-    int? todayPrevMillis = getRow(date);
+    int? todayPrevMillis = getRow(dateString(DateTime.now()));
     if (todayPrevMillis != null) {
       _todayPrev = Duration(milliseconds: todayPrevMillis);
       _today = _todayPrev;
