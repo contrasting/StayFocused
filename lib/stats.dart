@@ -115,8 +115,7 @@ List<Series<FocusDay, DateTime>> _buildSeries(int days) {
       id: 'FocusDays',
       colorFn: (_, __) => Color(r: deusEx.red, g: deusEx.green, b: deusEx.blue),
       domainFn: (FocusDay day, _) => day.date,
-      measureFn: (FocusDay day, _) =>
-          Duration(milliseconds: day.focusedTimeMillis).inSeconds / 3600,
+      measureFn: (FocusDay day, _) => day.focusedDuration.inSeconds / 3600,
       data: truncated.toList(),
     )
   ];
@@ -127,11 +126,10 @@ Duration _getAverage([int? days]) {
   if (allTime.isEmpty) return Duration.zero;
   if (days == null) days = allTime.length;
   final truncated = allTime.getRange(max(0, allTime.length - days), allTime.length);
-  final totalMillis = truncated
-      .map<int>((day) => day.focusedTimeMillis)
+  final total = truncated
+      .map<Duration>((day) => day.focusedDuration)
       .reduce((value, element) => value + element);
-  final averageMillis = totalMillis / days;
-  return Duration(milliseconds: averageMillis.round());
+  return total ~/ days;
 }
 
 Duration _getTotal([int? days]) {
@@ -139,10 +137,10 @@ Duration _getTotal([int? days]) {
   if (allTime.isEmpty) return Duration.zero;
   if (days == null) days = allTime.length;
   final truncated = allTime.getRange(max(0, allTime.length - days), allTime.length);
-  final totalMillis = truncated
-      .map<int>((day) => day.focusedTimeMillis)
+  final total = truncated
+      .map<Duration>((day) => day.focusedDuration)
       .reduce((value, element) => value + element);
-  return Duration(milliseconds: totalMillis);
+  return total;
 }
 
 class FocusChart extends StatefulWidget {
@@ -174,7 +172,7 @@ class _FocusChartState extends State<FocusChart> {
               if (selectedDatum.isNotEmpty) {
                 FocusDay day = selectedDatum.first.datum;
                 setState(() {
-                  _subtitle = formatDurationNoSecs(Duration(milliseconds: day.focusedTimeMillis));
+                  _subtitle = formatDurationNoSecs(day.focusedDuration);
                 });
               }
             }
@@ -192,13 +190,29 @@ class Calendar extends StatelessWidget {
   Widget build(BuildContext context) {
     final allDates = getParsed();
     // TODO this will probably throw if empty
+    final allDatesMap = Map<String, Duration>.fromIterable(
+      allDates,
+      key: (day) => dateString(day.date),
+      value: (day) => day.focusedDuration,
+    );
     return TableCalendar(
       firstDay: allDates.first.date,
       lastDay: allDates.last.date,
       focusedDay: allDates.last.date,
-      // calendarBuilders: CalendarBuilders(
-      //   defaultBuilder: (context, day, focusedDay) => Text('lol'),
-      // ),
+      calendarBuilders: CalendarBuilders(
+        defaultBuilder: (context, day, focusedDay) {
+          return _buildDay(allDatesMap, day);
+        },
+        todayBuilder: (context, day, focusedDay) {
+          return _buildDay(allDatesMap, day);
+        }
+      ),
     );
+  }
+
+  Widget _buildDay(Map<String, Duration> allDatesMap, DateTime day) {
+    final date = dateString(day);
+    if (allDatesMap[date] == null) return Text('ERROR');
+    return Center(child: Text(formatDurationNoSecs(allDatesMap[date]!)));
   }
 }

@@ -49,9 +49,9 @@ int? getRow(String label) {
 
 class FocusDay {
   final DateTime date;
-  final int focusedTimeMillis;
+  final Duration focusedDuration;
 
-  FocusDay(this.date, this.focusedTimeMillis);
+  FocusDay(this.date, this.focusedDuration);
 }
 
 List<FocusDay> getParsed() {
@@ -62,7 +62,7 @@ List<FocusDay> getParsed() {
 List<FocusDay> _parse() {
   _parsed = <FocusDay>[];
   for (final row in _data) {
-    _parsed!.add(FocusDay(stringToDate(row[0]), row[1]));
+    _parsed!.add(FocusDay(stringToDate(row[0]), Duration(milliseconds: row[1])));
   }
   return _parsed!;
 }
