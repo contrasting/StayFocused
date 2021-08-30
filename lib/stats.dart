@@ -163,6 +163,7 @@ class _FocusChartState extends State<FocusChart> {
       subtitle: _subtitle,
       chart: TimeSeriesChart(
         _buildSeries(widget.observations),
+        defaultRenderer: BarRendererConfig<DateTime>(),
         // https://google.github.io/charts/flutter/example/behaviors/selection_callback_example
         selectionModels: [
           SelectionModelConfig(
@@ -199,6 +200,7 @@ class Calendar extends StatelessWidget {
       firstDay: allDates.first.date,
       lastDay: allDates.last.date,
       focusedDay: allDates.last.date,
+      enabledDayPredicate: (day) => allDatesMap.containsKey(dateString(day)),
       calendarBuilders: CalendarBuilders(
         defaultBuilder: (context, day, focusedDay) {
           return _buildDay(allDatesMap, day);
