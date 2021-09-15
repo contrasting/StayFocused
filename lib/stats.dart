@@ -20,7 +20,7 @@ class Stats extends StatelessWidget {
             flex: 1,
             fit: FlexFit.tight,
             child: Column(
-              children: [
+              children: const [
                 Expanded(child: FocusChart(title: 'Last Week', observations: 7)),
                 Expanded(child: FocusChart(title: 'Last Month', observations: 30)),
               ],
@@ -56,8 +56,8 @@ class Stats extends StatelessWidget {
                     'All time average: ${formatDurationNoSecs(_getAverage())}',
                     style: Theme.of(context).textTheme.headline4,
                   ),
-                  Spacer(),
-                  Calendar(),
+                  const Spacer(),
+                  const Calendar(),
                 ],
               ),
             ),
@@ -124,7 +124,7 @@ List<Series<FocusDay, DateTime>> _buildSeries(int days) {
 Duration _getAverage([int? days]) {
   final allTime = getParsed();
   if (allTime.isEmpty) return Duration.zero;
-  if (days == null) days = allTime.length;
+  days ??= allTime.length;
   final truncated = allTime.getRange(max(0, allTime.length - days), allTime.length);
   final total = truncated
       .map<Duration>((day) => day.focusedDuration)
@@ -135,7 +135,7 @@ Duration _getAverage([int? days]) {
 Duration _getTotal([int? days]) {
   final allTime = getParsed();
   if (allTime.isEmpty) return Duration.zero;
-  if (days == null) days = allTime.length;
+  days ??= allTime.length;
   final truncated = allTime.getRange(max(0, allTime.length - days), allTime.length);
   final total = truncated
       .map<Duration>((day) => day.focusedDuration)
@@ -191,11 +191,7 @@ class Calendar extends StatelessWidget {
   Widget build(BuildContext context) {
     final allDates = getParsed();
     // TODO this will probably throw if empty
-    final allDatesMap = Map<String, Duration>.fromIterable(
-      allDates,
-      key: (day) => dateString(day.date),
-      value: (day) => day.focusedDuration,
-    );
+    final allDatesMap = { for (var day in allDates) dateString(day.date) : day.focusedDuration };
     return TableCalendar(
       firstDay: allDates.first.date,
       lastDay: allDates.last.date,
@@ -214,7 +210,7 @@ class Calendar extends StatelessWidget {
 
   Widget _buildDay(Map<String, Duration> allDatesMap, DateTime day) {
     final date = dateString(day);
-    if (allDatesMap[date] == null) return Text('ERROR');
+    if (allDatesMap[date] == null) return const Text('ERROR');
     return Center(child: Text(formatDurationNoSecs(allDatesMap[date]!)));
   }
 }

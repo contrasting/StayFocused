@@ -14,7 +14,7 @@ List<FocusDay>? _parsed;
 // call this before using any other methods
 Future<void> loadData() async {
   final documentsPath = await pathProvider.getPath(WindowsKnownFolder.Documents);
-  _file = File('${documentsPath}/focus_data.csv');
+  _file = File('$documentsPath/focus_data.csv');
   try {
     _data = await _file.openRead().transform(utf8.decoder).transform(const CsvToListConverter()).toList();
   } on FileSystemException {

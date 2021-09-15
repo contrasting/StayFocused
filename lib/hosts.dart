@@ -13,7 +13,7 @@ import 'main.dart';
 void startBlocking() async {
   if (!preferences.containsKey(BLACKLISTED)) return;
 
-  final ls = LineSplitter();
+  const ls = LineSplitter();
   final hostsFile = await _getHostsFile();
   final hostsList = ls.convert(await hostsFile.readAsString());
 
@@ -40,7 +40,7 @@ void startBlocking() async {
 
 void stopBlocking() async {
   final hostsFile = await _getHostsFile();
-  final hostsList = LineSplitter().convert(await hostsFile.readAsString());
+  final hostsList = const LineSplitter().convert(await hostsFile.readAsString());
   _removeExisting(hostsList);
   hostsFile.writeAsString(hostsList.join('\n'));
 }
@@ -96,7 +96,7 @@ class _HostsState extends State<Hosts> {
               'Hosts to blacklist:',
               style: Theme.of(context).textTheme.headline5,
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             Expanded(
               child: TextField(
                 controller: _controller,
@@ -104,15 +104,15 @@ class _HostsState extends State<Hosts> {
                 minLines: null,
                 maxLines: null,
                 textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                 ),
               ),
             ),
-            SizedBox(height: 8.0),
+            const SizedBox(height: 8.0),
             ElevatedButton(
               onPressed: _save,
-              child: Text('SAVE'),
+              child: const Text('SAVE'),
             ),
           ],
         ),
