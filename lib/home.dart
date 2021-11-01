@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:stay_focused/data.dart';
 import 'package:stay_focused/hosts.dart';
 import 'package:stay_focused/strings.dart';
@@ -16,6 +17,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   late final Timer _uiUpdater;
+  late final _player = AudioPlayer();
 
   bool get _isFocusing => preferences.containsKey(SESSION_START);
   int? get _startTimeMillis => preferences.getInt(SESSION_START);
@@ -43,6 +45,7 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     _uiUpdater.cancel();
+    _player.dispose();
     super.dispose();
   }
 
@@ -90,6 +93,18 @@ class _HomeState extends State<Home> {
       _session = Duration(milliseconds: elapsedMillis);
       _today = _session + _todayPrev;
     });
+    // play sound if over 1 hour
+    if (_session > const Duration(hours: 1)) {
+      _maybePlaySound();
+    }
+  }
+
+  void _maybePlaySound() async {
+    if (!_player.playing) {
+      await _player.setAsset('assets/logos.mp3');
+      _player.setLoopMode(LoopMode.all);
+      _player.play();
+    }
   }
 
   void _startFocusing() {
@@ -108,5 +123,7 @@ class _HomeState extends State<Home> {
     writeRow(dateString(DateTime.now()), _today.inMilliseconds);
     _todayPrev = _today;
     stopBlocking();
+
+    _player.stop();
   }
 }
